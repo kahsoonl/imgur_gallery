@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:imgur_gallery/pages/pages.dart';
 
 class ImgurApp extends StatelessWidget {
   @override
@@ -6,7 +7,7 @@ class ImgurApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: '/',
       routes: {
-
+        '/' : (context) => HomePage()
       },
       theme: _imgurTheme,
     );
