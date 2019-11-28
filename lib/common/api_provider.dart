@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:http_interceptor/http_interceptor.dart';
 import 'package:imgur_gallery/common/api_interceptor.dart';
 import 'dart:convert';
@@ -16,6 +18,17 @@ class APIProvider {
         headers: {'Authorization': 'Client-ID $_clientId'});
     if (response.statusCode == 200) {
       return json.decode(response.body)['data'];
+    }
+    return 'error';
+  }
+
+  Future<dynamic> uploadImage(File image) async {
+    var response = await _http.post(
+        _baseUrl + "3/upload",
+        headers: {'Authorization': 'Client-ID $_clientId'},
+    body: { 'image': image, 'type': 'file'});
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
     }
     return 'error';
   }

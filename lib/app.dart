@@ -7,6 +7,8 @@ import 'package:imgur_gallery/pages/pages.dart';
 import 'package:imgur_gallery/repository/image_repository.dart';
 
 class ImgurApp extends StatelessWidget {
+  final _imageRepository = ImageRepository(apiProvider: APIProvider());
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,10 +16,11 @@ class ImgurApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => BlocProvider(
-            builder: (context) => ImageBloc(
-                imageRepository: ImageRepository(apiProvider: APIProvider())),
+            builder: (context) => ImageBloc(imageRepository: _imageRepository),
             child: HomePage()),
-        '/image_detail': (context) => ImageDetailPage(),
+        '/image_detail': (context) => BlocProvider(
+            builder: (context) => ImageBloc(imageRepository: _imageRepository),
+            child: ImageDetailPage()),
       },
       theme: _imgurTheme,
     );

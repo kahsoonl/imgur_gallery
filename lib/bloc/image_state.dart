@@ -26,3 +26,7 @@ class ImageLoaded extends ImageState {
 }
 
 class ImageError extends ImageState {}
+
+class UploadingImage extends ImageState {}
+
+class ImageUploaded extends ImageState {}

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
@@ -18,7 +20,7 @@ class UploadImage extends ImageEvent {
     this.image
   }) : assert(image != null);
 
-  final String image;
+  final File image;
 
   @override
   List<Object> get props => null;

@@ -61,9 +61,19 @@ class _HomeBody extends StatelessWidget {
           child: FloatingActionButton(
             child: Icon(Icons.file_upload),
             onPressed: () {
-              showDialog(
+              Future<ImageSource> imageSource = showDialog(
                   context: context,
-                  builder: (BuildContext context) => UploadOptionDialog());
+                  builder: (BuildContext context) =>
+                      UploadOptionDialog(parentContext: context));
+              imageSource.then((imageSource) {
+                if(imageSource != null) {
+                  ImagePicker.pickImage(source: imageSource)
+                      .then((selectedImage) {
+                    Navigator.pushNamed(context, '/image_detail',
+                        arguments: selectedImage);
+                  });
+                }
+              });
             },
           ),
         ),
@@ -83,6 +93,10 @@ class _HomeBody extends StatelessWidget {
 }
 
 class UploadOptionDialog extends StatelessWidget {
+  UploadOptionDialog({this.parentContext});
+
+  final BuildContext parentContext;
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -95,21 +109,14 @@ class UploadOptionDialog extends StatelessWidget {
             title: Text('Camera'),
             leading: Icon(Icons.camera),
             onTap: () {
-              Navigator.of(context, rootNavigator: true).pop();
-              ImagePicker.pickImage(source: ImageSource.camera).then(
-                  (selectedImage) => Navigator.of(context, rootNavigator: true)
-                      .pushNamed('/image_detail', arguments: selectedImage));
+              Navigator.pop(context, ImageSource.camera);
             },
           ),
           ListTile(
             title: Text('Gallery'),
             leading: Icon(Icons.photo),
             onTap: () {
-              Navigator.pop(context);
-              ImagePicker.pickImage(source: ImageSource.gallery).then(
-                  (selectedImage) => Navigator.pushNamed(
-                      context, '/image_detail',
-                      arguments: selectedImage));
+              Navigator.pop(context, ImageSource.gallery);
             },
           ),
         ],
