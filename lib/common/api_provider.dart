@@ -4,6 +4,8 @@ import 'package:http_interceptor/http_interceptor.dart';
 import 'package:imgur_gallery/common/api_interceptor.dart';
 import 'dart:convert';
 
+import 'package:imgur_gallery/model/imgur_image_model.dart';
+
 class APIProvider {
   final String _baseUrl = "https://api.imgur.com/";
   final String _clientId = "6262c5ede914c3a";
@@ -14,28 +16,33 @@ class APIProvider {
   final _http = HttpWithInterceptor.build(interceptors: [LoggingInterceptor()]);
 
   Future<dynamic> getAlbumImage() async {
-    var response = await _http.post(_baseUrl + "3/album/$_albumDeleteHash/images",
+    var response = await _http.post(
+        _baseUrl + "3/album/$_albumDeleteHash/images",
         headers: {'Authorization': 'Client-ID $_clientId'});
     if (response.statusCode == 200) {
-      return json.decode(response.body)['data'];
+      return ImgurImageModel.fromJson(json.decode(response.body)['data']);
     }
     return 'error';
   }
 
-  Future<dynamic> uploadImage(File image) async {
-    var response = await _http.post(
-        _baseUrl + "3/upload",
-        headers: {'Authorization': 'Client-ID $_clientId'},
-    body: { 'image': image, 'type': 'file'});
+  Future<bool> uploadImage(String image, String name, String desc) async {
+    var response = await _http.post(_baseUrl + "3/upload", headers: {
+      'Authorization': 'Client-ID $_clientId'
+    }, body: {
+      'image': image,
+      'type': 'base64',
+      'name': name,
+      'desc': desc,
+      'album': _albumDeleteHash
+    });
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      return json.decode(response.body)['success'];
     }
-    return 'error';
+    return false;
   }
 
   Future<dynamic> addImageToAlbum() async {
-    var response = await _http.post(
-        _baseUrl + "3/album/$_albumDeleteHash/add",
+    var response = await _http.post(_baseUrl + "3/album/$_albumDeleteHash/add",
         headers: {'Authorization': 'Client-ID $_clientId'});
     if (response.statusCode == 200) {
       return json.decode(response.body);

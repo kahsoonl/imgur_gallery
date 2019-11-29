@@ -4,6 +4,7 @@ import 'package:imgur_gallery/bloc/bloc.dart';
 import 'package:imgur_gallery/resources/dimen.dart';
 import 'package:imgur_gallery/widgets/custom_app_bar.dart';
 import 'dart:io';
+import 'dart:convert';
 
 class ImageDetailPage extends StatefulWidget {
   @override
@@ -23,19 +24,21 @@ class _ImageDetailPageState extends State<ImageDetailPage> {
       body: BlocBuilder<ImageBloc, ImageState>(
         builder: (context, state) {
           print(state);
-          if(state is ImageUninitialized) {
+          if (state is ImageUninitialized) {
             return Padding(
               padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
               child: _ImageDetailBody(selectedImage: _arguments),
             );
           }
 
-          if(state is UploadingImage) {
+          if (state is UploadingImage) {
             return Center(child: CircularProgressIndicator());
           }
 
-          if(state is ImageUploaded) {
-            return _ImageUploadSuccess();
+          if (state is ImageUploaded) {
+            if (state.isSuccess) {
+              return _ImageUploadSuccess();
+            } else {}
           }
           return Container();
         },
@@ -54,13 +57,12 @@ class _ImageDetailBody extends StatefulWidget {
 }
 
 class __ImageDetailBodyState extends State<_ImageDetailBody> {
-  final _titleController = TextEditingController();
-
+  final _nameController = TextEditingController();
   final _descController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
     final _hintTextStyle = TextStyle(color: Colors.grey);
     final _inputDecoration = InputDecoration(
       labelStyle: _hintTextStyle,
@@ -82,11 +84,11 @@ class __ImageDetailBodyState extends State<_ImageDetailBody> {
           Padding(
             padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
             child: TextFormField(
-                controller: _titleController,
-                decoration: _inputDecoration.copyWith(labelText: 'Title'),
+                controller: _nameController,
+                decoration: _inputDecoration.copyWith(labelText: 'Image Name'),
                 validator: (inputValue) {
                   if (inputValue.isEmpty) {
-                    return 'Please enter title';
+                    return 'Please enter an image name';
                   }
                   return null;
                 }),
@@ -129,8 +131,14 @@ class __ImageDetailBodyState extends State<_ImageDetailBody> {
                   ),
                   color: Theme.of(context).accentColor,
                   onPressed: () {
-                    if(_formKey.currentState.validate()) {
-                      BlocProvider.of<ImageBloc>(context).add(UploadImage(image: this.widget.selectedImage));
+                    if (_formKey.currentState.validate()) {
+                      List<int> imageBytes = widget.selectedImage.readAsBytesSync();
+                      print(imageBytes);
+                      String base64Image = base64Encode(imageBytes);
+                      BlocProvider.of<ImageBloc>(context).add(UploadImage(
+                          image: base64Image,
+                          name: _nameController.text,
+                          desc: _descController.text));
                     }
                   },
                 ),

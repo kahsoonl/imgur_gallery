@@ -8,20 +8,21 @@ abstract class ImageEvent extends Equatable {
 }
 
 class FetchImage extends ImageEvent {
-
   @override
   List<Object> get props => [];
 }
 
 class UploadImage extends ImageEvent {
+  const UploadImage(
+      {@required this.image, @required this.name, @required this.desc})
+      : assert(image != null),
+        assert(name != null),
+        assert(desc != null);
 
-  const UploadImage({
-    @required
-    this.image
-  }) : assert(image != null);
-
-  final File image;
+  final String image;
+  final String name;
+  final String desc;
 
   @override
-  List<Object> get props => null;
+  List<Object> get props => [image, name, desc];
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:imgur_gallery/common/api_provider.dart';
+import 'package:imgur_gallery/model/imgur_image_model.dart';
 import 'package:meta/meta.dart';
 
 class ImageRepository {
@@ -13,7 +14,7 @@ class ImageRepository {
     return await apiProvider.getAlbumImage();
   }
 
-  Future<dynamic> uploadImage(File image) async {
-    return await apiProvider.uploadImage(image);
+  Future<dynamic> uploadImage(String image, String title, String desc) async {
+    return await apiProvider.uploadImage(image, title, desc);
   }
 }

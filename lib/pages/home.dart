@@ -59,6 +59,7 @@ class _HomeBody extends StatelessWidget {
           right: 10,
           bottom: 10,
           child: FloatingActionButton(
+            heroTag: 'upload',
             child: Icon(Icons.file_upload),
             onPressed: () {
               Future<ImageSource> imageSource = showDialog(
@@ -66,27 +67,30 @@ class _HomeBody extends StatelessWidget {
                   builder: (BuildContext context) =>
                       UploadOptionDialog(parentContext: context));
               imageSource.then((imageSource) {
-                if(imageSource != null) {
+                if (imageSource != null) {
                   ImagePicker.pickImage(source: imageSource)
                       .then((selectedImage) {
-                    Navigator.pushNamed(context, '/image_detail',
-                        arguments: selectedImage);
+                    if (selectedImage != null) {
+                      Navigator.pushNamed(context, '/image_detail',
+                          arguments: selectedImage);
+                    }
                   });
                 }
               });
             },
           ),
         ),
-//        Positioned(
-//          right: 10,
-//          bottom: 20,
-//          child: FloatingActionButton(
-//            child: Icon(Icons.refresh),
-//            onPressed: () {
-//              BlocProvider.of<ImageBloc>(context).add(FetchImage());
-//            },
-//          ),
-//        )
+        Positioned(
+          right: 10,
+          bottom: 80,
+          child: FloatingActionButton(
+            heroTag: 'refresh',
+            child: Icon(Icons.refresh),
+            onPressed: () {
+              BlocProvider.of<ImageBloc>(context).add(FetchImage());
+            },
+          ),
+        )
       ],
     );
   }

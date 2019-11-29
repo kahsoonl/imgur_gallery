@@ -16,17 +16,20 @@ class ImageEmpty extends ImageState {}
 class ImageLoading extends ImageState {}
 
 class ImageLoaded extends ImageState {
-
-  const ImageLoaded({
-    @required
-    this.imageUrl
-  }): assert(imageUrl != null);
+  const ImageLoaded({@required this.imageUrl}) : assert(imageUrl != null);
 
   final List<ImgurImageModel> imageUrl;
+
+  @override
+  List<Object> get props => [imageUrl];
 }
 
 class ImageError extends ImageState {}
 
 class UploadingImage extends ImageState {}
 
-class ImageUploaded extends ImageState {}
+class ImageUploaded extends ImageState {
+  const ImageUploaded({@required this.isSuccess}) : assert(isSuccess != null);
+
+  final bool isSuccess;
+}
