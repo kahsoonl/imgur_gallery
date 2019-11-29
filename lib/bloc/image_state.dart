@@ -25,11 +25,3 @@ class ImageLoaded extends ImageState {
 }
 
 class ImageError extends ImageState {}
-
-class UploadingImage extends ImageState {}
-
-class ImageUploaded extends ImageState {
-  const ImageUploaded({@required this.isSuccess}) : assert(isSuccess != null);
-
-  final bool isSuccess;
-}

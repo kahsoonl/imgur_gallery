@@ -11,18 +11,26 @@ class ImgurApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => BlocProvider(
-            builder: (context) => ImageBloc(imageRepository: _imageRepository),
-            child: HomePage()),
-        '/image_detail': (context) => BlocProvider(
-            builder: (context) => ImageBloc(imageRepository: _imageRepository),
-            child: ImageDetailPage()),
-      },
-      theme: _imgurTheme,
+    return BlocProvider(
+      builder: (context) => ImageBloc(imageRepository: _imageRepository),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        initialRoute: '/',
+        routes: {
+          '/': (context) => HomePage(),
+          '/image_detail': (context) => BlocProvider(
+              builder: (context) =>
+                  UploadBloc(imageRepository: _imageRepository),
+              child: ImageDetailPage())
+//          '/': (context) => BlocProvider(
+//              builder: (context) => ImageBloc(imageRepository: _imageRepository),
+//              child: HomePage()),
+//          '/image_detail': (context) => BlocProvider(
+//              builder: (context) => ImageBloc(imageRepository: _imageRepository),
+//              child: ImageDetailPage()),
+        },
+        theme: _imgurTheme,
+      ),
     );
   }
 }

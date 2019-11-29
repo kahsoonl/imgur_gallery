@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:imgur_gallery/bloc/bloc.dart';
 import 'package:imgur_gallery/model/imgur_image_model.dart';
+import 'package:imgur_gallery/resources/resources.dart';
 import 'package:imgur_gallery/widgets/custom_app_bar.dart';
 
 class HomePage extends StatefulWidget {
@@ -30,8 +29,30 @@ class _HomeBody extends StatelessWidget {
     return Stack(
       children: <Widget>[
         BlocBuilder<ImageBloc, ImageState>(builder: (context, state) {
+          if(state is ImageUninitialized) {
+            BlocProvider.of<ImageBloc>(context).add(FetchImage());
+          }
+
           if (state is ImageLoading) {
             return Center(child: CircularProgressIndicator());
+          }
+
+          if (state is ImageEmpty) {
+            return Positioned.fill(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
+                    child: Icon(Icons.warning, color: Colors.deepOrange),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
+                    child: Text('Album is empty, please upload image to imgur'),
+                  ),
+                ],
+              ),
+            );
           }
 
           if (state is ImageLoaded) {
@@ -40,8 +61,31 @@ class _HomeBody extends StatelessWidget {
             return ListView.builder(
               itemCount: imageList.length,
               itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  child: Image.network(imageList[index].imageLink),
+                return Card(
+                  elevation: 4,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      ClipRRect(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(4),
+                              topRight: Radius.circular(4)),
+                          child: AspectRatio(
+                              aspectRatio: 16 / 9,
+                              child: Image.network(
+                                imageList[index].imageLink,
+                                fit: BoxFit.fill,
+                              ))),
+                      Padding(
+                        padding:
+                            const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
+                        child: Center(
+                            child: Text(imageList[index].title == null
+                                ? 'N/A'
+                                : imageList[index].title)),
+                      ),
+                    ],
+                  ),
                 );
               },
             );

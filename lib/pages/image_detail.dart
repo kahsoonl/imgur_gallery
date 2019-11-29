@@ -21,10 +21,9 @@ class _ImageDetailPageState extends State<ImageDetailPage> {
       appBar: CustomAppBar(
         title: 'Image Preview',
       ),
-      body: BlocBuilder<ImageBloc, ImageState>(
+      body: BlocBuilder<UploadBloc, UploadState>(
         builder: (context, state) {
-          print(state);
-          if (state is ImageUninitialized) {
+          if (state is UploadPreview) {
             return Padding(
               padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
               child: _ImageDetailBody(selectedImage: _arguments),
@@ -32,14 +31,28 @@ class _ImageDetailPageState extends State<ImageDetailPage> {
           }
 
           if (state is UploadingImage) {
-            return Center(child: CircularProgressIndicator());
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                CircularProgressIndicator(),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
+                    child: Text('Uploading image to Imgur... please wait'),
+                  ),
+                )
+              ],
+            );
           }
 
-          if (state is ImageUploaded) {
-            if (state.isSuccess) {
-              return _ImageUploadSuccess();
-            } else {}
+          if (state is UploadSuccess) {
+            return _ImageUploadSuccess();
           }
+
+          if (state is UploadFailed || state is UploadError) {
+            return _ImageUploadFailed();
+          }
+
           return Container();
         },
       ),
@@ -58,7 +71,6 @@ class _ImageDetailBody extends StatefulWidget {
 
 class __ImageDetailBodyState extends State<_ImageDetailBody> {
   final _nameController = TextEditingController();
-  final _descController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -93,21 +105,6 @@ class __ImageDetailBodyState extends State<_ImageDetailBody> {
                   return null;
                 }),
           ),
-          Padding(
-            padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
-            child: TextFormField(
-              controller: _descController,
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              decoration: _inputDecoration.copyWith(labelText: 'Description'),
-              validator: (inputValue) {
-                if (inputValue.isEmpty) {
-                  return 'Please enter description';
-                }
-                return null;
-              },
-            ),
-          ),
           Spacer(),
           Padding(
             padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
@@ -132,13 +129,11 @@ class __ImageDetailBodyState extends State<_ImageDetailBody> {
                   color: Theme.of(context).accentColor,
                   onPressed: () {
                     if (_formKey.currentState.validate()) {
-                      List<int> imageBytes = widget.selectedImage.readAsBytesSync();
-                      print(imageBytes);
+                      List<int> imageBytes =
+                          widget.selectedImage.readAsBytesSync();
                       String base64Image = base64Encode(imageBytes);
-                      BlocProvider.of<ImageBloc>(context).add(UploadImage(
-                          image: base64Image,
-                          name: _nameController.text,
-                          desc: _descController.text));
+                      BlocProvider.of<UploadBloc>(context).add(UploadImage(
+                          image: base64Image, name: _nameController.text));
                     }
                   },
                 ),
@@ -156,18 +151,57 @@ class _ImageUploadSuccess extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Icon(Icons.check_circle_outline, color: Colors.green),
+          Padding(
+            padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
+            child: Icon(Icons.check_circle_outline, color: Colors.green),
+          ),
           Padding(
             padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
             child: Text('Image successfully updated'),
           ),
-          RaisedButton(
-            child: Text('OK'),
-            color: Theme.of(context).accentColor,
-            onPressed: () {
-              Navigator.pop(context);
-            },
+          Padding(
+            padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
+            child: RaisedButton(
+              child: Text('OK', style: TextStyle(color: Colors.white)),
+              color: Theme.of(context).accentColor,
+              onPressed: () {
+                BlocProvider.of<ImageBloc>(context).add(FetchImage());
+                Navigator.pop(context);
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _ImageUploadFailed extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
+            child: Icon(Icons.error_outline, color: Colors.red),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
+            child: Text('Image failed to upload, please try again'),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(MARGIN_PADDING_SIZE_SMALL),
+            child: RaisedButton(
+              child: Text('OK', style: TextStyle(color: Colors.white)),
+              color: Theme.of(context).accentColor,
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
           )
         ],
       ),

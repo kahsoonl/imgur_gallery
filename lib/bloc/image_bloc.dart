@@ -22,19 +22,13 @@ class ImageBloc extends Bloc<ImageEvent, ImageState> {
           if(response is String) {
             return ImageError();
           } else {
-            return ImageLoaded(imageUrl: response);
+            if(response is List<ImgurImageModel> && response.isEmpty) {
+              return ImageEmpty();
+            } else {
+              return ImageLoaded(imageUrl: response);
+            }
           }
         });
-        //yield ImageLoaded(imageUrl:  imageUrls);
-      } catch (_) {
-        yield ImageError();
-      }
-    }
-    if(event is UploadImage) {
-      yield UploadingImage();
-      try {
-        final bool successUpload = await imageRepository.uploadImage(event.image, event.name, event.desc);
-        yield ImageUploaded(isSuccess: successUpload);
       } catch (_) {
         yield ImageError();
       }
